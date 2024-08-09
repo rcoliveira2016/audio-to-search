@@ -2,6 +2,7 @@
 using AudioToSearch.Infra.CrossCutting.Settings.Paths;
 using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NAudio.Wave;
 using System.Text;
@@ -10,7 +11,8 @@ namespace AudioToSearch.Aplication.Catalogar.Audio.CommandHandlers;
 
 public class CatalogarAudioCommandHandler(
     IOptions<PathSettings> pathSettings,
-    ISpeechToTextService speechToTextService
+    ISpeechToTextService speechToTextService,
+    ILogger<CatalogarAudioCommandHandler> logger
     ) : IRequestHandler<CatalogarAudioCommand>
 {
     private const int SampleRate = 16000;
@@ -29,11 +31,13 @@ public class CatalogarAudioCommandHandler(
         if (!CheckExtension(request.CaminhoArquivo))
         {
             caminhoNovo = string.Empty;
+            logger.LogError("Extenção não é valida");
             return false;
         }
 
         if (!IsMp3OrWav(request.CaminhoArquivo, out var tipo))
         {
+            logger.LogError("Não é formato mp3 e wav");
             caminhoNovo = string.Empty;
             return false;
         }
@@ -48,11 +52,6 @@ public class CatalogarAudioCommandHandler(
         else if (tipo == eFormatoArquivo.Wav)
             ConvertWavToWavMono(request.CaminhoArquivo, caminhoNovo, SampleRate);
 
-        else {
-            caminhoNovo = string.Empty;
-            return false;
-        }
-
         File.Delete(request.CaminhoArquivo);
 
         return true;
@@ -65,7 +64,7 @@ public class CatalogarAudioCommandHandler(
             var result = await speechToTextService.Send(caminhoNovo);
             await foreach (var item in result.Itens)
             {
-                Console.WriteLine(item.Text);
+                logger.LogInformation(item.Text);
             }
         }
         catch (Exception e)

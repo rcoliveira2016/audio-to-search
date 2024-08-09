@@ -1,4 +1,5 @@
 ﻿using AudioToSearch.Api.Endpoints;
+using Serilog;
 
 namespace AudioToSearch.Api.Configurations;
 
@@ -10,6 +11,8 @@ public static class WebApplicationConfiguration
             .AddEndpointsApiExplorer()
             .AddSwaggerGen()
             .AddMapIocService();
+
+        builder.AddLogger();
 
         return builder.Build();
     }
