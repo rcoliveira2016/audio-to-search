@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/AudioToSearch/src/AudioToSearch.Api/Data/Models/SpeechToText

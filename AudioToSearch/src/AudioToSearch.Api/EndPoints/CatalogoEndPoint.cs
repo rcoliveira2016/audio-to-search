@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace AudioToSearch.Api.EndPoints;
+namespace AudioToSearch.Api.Endpoints;
 
 public static class CatalogoEndPoint
 {
@@ -13,13 +13,13 @@ public static class CatalogoEndPoint
         var group = app
             .MapGroup("/catalogar");
 
-        group.MapPost("enviar-audio", [DisableRequestSizeLimit] async (
+        group.MapPost("enviar-audio", [DisableRequestSizeLimit] (
             [FromForm] string descricao,
             IFormFile fileAudio,
             [FromServices]IMediator bus,
             [FromServices]IOptions<PathSettings> pathSettings) =>
         {
-            await ExecutarEnvioArquivo(descricao, fileAudio, bus, pathSettings);
+            ExecutarEnvioArquivo(descricao, fileAudio, bus, pathSettings);
             return Results.Ok();
         })
             .DisableAntiforgery();
@@ -28,8 +28,9 @@ public static class CatalogoEndPoint
         return app;
     }
 
-    private static async Task ExecutarEnvioArquivo(string descricao, IFormFile fileAudio, IMediator bus, IOptions<PathSettings> pathSettings)
+    private static void ExecutarEnvioArquivo(string descricao, IFormFile fileAudio, IMediator bus, IOptions<PathSettings> pathSettings)
     {
+
         var caminho = Path.Combine(
                 pathSettings.Value.DiretorioCatalogoAudios,
                 $"{Guid.NewGuid().ToString()}{Path.GetExtension(fileAudio.FileName)}"
@@ -40,11 +41,14 @@ public static class CatalogoEndPoint
             fileAudio.CopyTo(stream);
         }
 
-        await bus.Send(new CatalogarAudioCommand()
+        Task.Run(async () =>
         {
-            CaminhoArquivo = caminho,
-            Descricao = descricao,
-            Nome = fileAudio.FileName
+            await bus.Send(new CatalogarAudioCommand()
+            {
+                CaminhoArquivo = caminho,
+                Descricao = descricao,
+                Nome = fileAudio.FileName
+            });
         });
     }
 }

@@ -1,4 +1,4 @@
-﻿using AudioToSearch.Api.EndPoints;
+﻿using AudioToSearch.Api.Endpoints;
 
 namespace AudioToSearch.Api.Configurations;
 

@@ -4,7 +4,6 @@ using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NAudio.Wave;
-using System.Diagnostics;
 using System.Text;
 
 namespace AudioToSearch.Aplication.Catalogar.Audio.CommandHandlers;
@@ -18,31 +17,61 @@ public class CatalogarAudioCommandHandler(
 
     public async Task Handle(CatalogarAudioCommand request, CancellationToken cancellationToken)
     {
+        if(!ObterCaminhoAudioTratado(request, out var caminhoNovo)) return;
+
+        await TranscreverAudio(caminhoNovo);
+
+        return;
+    }
+
+    private bool ObterCaminhoAudioTratado(CatalogarAudioCommand request, out string caminhoNovo)
+    {
         if (!CheckExtension(request.CaminhoArquivo))
-            throw new ArgumentException();
+        {
+            caminhoNovo = string.Empty;
+            return false;
+        }
 
         if (!IsMp3OrWav(request.CaminhoArquivo, out var tipo))
-            throw new ArgumentException();
+        {
+            caminhoNovo = string.Empty;
+            return false;
+        }
 
-        var caminhoNovo = Path.Combine(
-            pathSettings.Value.DiretorioCatalogoAudios, 
+        caminhoNovo = Path.Combine(
+            pathSettings.Value.DiretorioCatalogoAudios,
             $"{Guid.NewGuid().ToString()}.wav");
 
         if (tipo == eFormatoArquivo.Mp3)
             ConvertMp3ToWav(request.CaminhoArquivo, caminhoNovo, SampleRate);
 
-        if (tipo == eFormatoArquivo.Wav)
+        else if (tipo == eFormatoArquivo.Wav)
             ConvertWavToWavMono(request.CaminhoArquivo, caminhoNovo, SampleRate);
+
+        else {
+            caminhoNovo = string.Empty;
+            return false;
+        }
 
         File.Delete(request.CaminhoArquivo);
 
-        var result = await speechToTextService.Send(caminhoNovo);
-        await foreach ( var item in result.Itens)
-        {
-            Trace.WriteLine(item.Text);
-        }
+        return true;
+    }
 
-        return;
+    private async Task TranscreverAudio(string caminhoNovo)
+    {
+        try
+        {
+            var result = await speechToTextService.Send(caminhoNovo);
+            await foreach (var item in result.Itens)
+            {
+                Console.WriteLine(item.Text);
+            }
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
     }
 
     private static void ConvertMp3ToWav(string mp3FilePath, string wavFilePath, int sampleRate)
