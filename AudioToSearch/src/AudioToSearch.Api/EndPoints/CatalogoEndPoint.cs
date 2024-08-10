@@ -1,5 +1,9 @@
 ﻿using AudioToSearch.Aplication.Catalogar.Audio.Commands;
+using AudioToSearch.Domain.CatalogarModels.AudioModels.Entitis;
+using AudioToSearch.Domain.CatalogarModels.AudioModels.Repositories;
 using AudioToSearch.Infra.CrossCutting.Settings.Paths;
+using AudioToSearch.Infra.Data;
+using AudioToSearch.Infra.Data.UnitOfWorks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -23,6 +27,23 @@ public static class CatalogoEndPoint
             return Results.Ok();
         })
             .DisableAntiforgery();
+
+        group.MapPost("adicionar", async (
+            [FromServices] ICatalogarAudioRepository catalogarAudioRepository,
+            [FromServices] IUnitOfWork unitOfWork) =>
+        {
+            var result = new CatalogarAudioEntity { Descricao = "Test1", Titulo = "teste1", UId = new Guid() };
+            await catalogarAudioRepository.AddAsync(result);
+            await unitOfWork.Commit();
+            return Results.Ok(result);
+        });
+
+        group.MapPost("consultar", (
+            [FromServices] ICatalogarAudioRepository catalogarAudioRepository) =>
+        {
+            var dataSet = catalogarAudioRepository.GetAllAsync();
+            return Results.Ok(dataSet);
+        });
 
 
         return app;
