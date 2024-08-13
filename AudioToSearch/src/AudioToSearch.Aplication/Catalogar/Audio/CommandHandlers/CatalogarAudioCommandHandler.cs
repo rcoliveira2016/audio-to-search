@@ -1,9 +1,11 @@
 ﻿using AudioToSearch.Aplication.Catalogar.Audio.Commands;
+using AudioToSearch.Aplication.Catalogar.Audio.Jobs;
 using AudioToSearch.Domain.CatalogarModels.AudioModels.Entitis;
 using AudioToSearch.Domain.CatalogarModels.AudioModels.Repositories;
 using AudioToSearch.Infra.CrossCutting.Settings.Paths;
 using AudioToSearch.Infra.Data.UnitOfWorks;
 using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
+using Hangfire;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -28,7 +30,7 @@ public class CatalogarAudioCommandHandler(
         {
             if (!ObterCaminhoAudioTratado(request, out var caminhoNovo)) return;
             var audioEntity = await CriarCatalocarAudio(request);
-            await TranscreverAudio(caminhoNovo, audioEntity);
+            TranscreverAudio(caminhoNovo, audioEntity);
         }
         catch (Exception e)
         {
@@ -82,30 +84,11 @@ public class CatalogarAudioCommandHandler(
         return true;
     }
 
-    private async Task TranscreverAudio(string caminhoNovo, CatalogarAudioEntity audioEntity)
+    private void TranscreverAudio(string caminhoNovo, CatalogarAudioEntity audioEntity)
     {
-        try
-        {
-            var result = await speechToTextService.Send(caminhoNovo);
-            await foreach (var item in result.Itens)
-            {
-                audioEntity.Transcricaoes.Add(new()
-                {
-                    CatalogarAudio = audioEntity,
-                    Final = item.End,
-                    Inicio = item.Start,
-                    Texto = item.Text,
-                    UId = new Guid(),
-                    UIdCatalogarAudio = audioEntity.UId,
-                });
-            }
-            await unitOfWork.Commit();
-        }
-        catch (Exception e)
-        {
-            logger.LogError(message: "erro ao TranscreverAudio", exception: e);
-            throw;
-        }
+        BackgroundJob.Schedule<TranscreverAudioJob>(
+            x => x.Executar(caminhoNovo, audioEntity.UId), 
+            TimeSpan.FromSeconds(1));
     }
 
     private static void ConvertMp3ToWav(string mp3FilePath, string wavFilePath, int sampleRate)

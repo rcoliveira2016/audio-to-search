@@ -10,7 +10,7 @@ public static class WebApplicationConfiguration
         builder.Services
             .AddEndpointsApiExplorer()
             .AddSwaggerGen()
-            .AddMapIocService();
+            .AddMapIocService(builder.Configuration);
 
         builder.AddLogger();
 
