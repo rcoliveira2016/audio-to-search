@@ -10,6 +10,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Application.db" />
+    <None Remove="Application.db-shm" />
+    <None Remove="Application.db-wal" />
+    <None Remove="HangfireConnection" />
+    <None Remove="HangfireConnection-shm" />
+    <None Remove="HangfireConnection-wal" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Hangfire" Version="1.8.14" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
     <PackageReference Include="Hangfire.Core" Version="1.8.14" />

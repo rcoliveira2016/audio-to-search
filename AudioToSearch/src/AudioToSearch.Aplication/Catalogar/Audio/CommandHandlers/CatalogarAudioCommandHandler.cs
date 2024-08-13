@@ -4,7 +4,6 @@ using AudioToSearch.Domain.CatalogarModels.AudioModels.Entitis;
 using AudioToSearch.Domain.CatalogarModels.AudioModels.Repositories;
 using AudioToSearch.Infra.CrossCutting.Settings.Paths;
 using AudioToSearch.Infra.Data.UnitOfWorks;
-using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
 using Hangfire;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -16,7 +15,6 @@ namespace AudioToSearch.Aplication.Catalogar.Audio.CommandHandlers;
 
 public class CatalogarAudioCommandHandler(
     IOptions<PathSettings> pathSettings,
-    ISpeechToTextService speechToTextService,
     ILogger<CatalogarAudioCommandHandler> logger,
     ICatalogarAudioRepository catalogarAudioRepository,
     IUnitOfWork unitOfWork
