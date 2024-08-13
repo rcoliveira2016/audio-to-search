@@ -1,8 +1,10 @@
 ﻿using AudioToSearch.Aplication.Catalogar.Audio.CommandHandlers;
 using AudioToSearch.Domain.CatalogarModels.AudioModels.Repositories;
+using AudioToSearch.Infra.CrossCutting.Settings.Paths;
 using AudioToSearch.Infra.Data.UnitOfWorks;
 using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AudioToSearch.Aplication.Catalogar.Audio.Jobs;
 
