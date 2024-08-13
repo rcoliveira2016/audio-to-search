@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 /AudioToSearch/src/AudioToSearch.Api/Data/Models/SpeechToText
 /AudioToSearch/src/AudioToSearch.Api/Application.db*
+/AudioToSearch/src/AudioToSearch.Api/HangfireConnection
