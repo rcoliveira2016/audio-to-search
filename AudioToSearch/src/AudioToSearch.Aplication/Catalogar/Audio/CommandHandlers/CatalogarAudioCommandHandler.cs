@@ -1,5 +1,8 @@
 ﻿using AudioToSearch.Aplication.Catalogar.Audio.Commands;
+using AudioToSearch.Domain.CatalogarModels.AudioModels.Entitis;
+using AudioToSearch.Domain.CatalogarModels.AudioModels.Repositories;
 using AudioToSearch.Infra.CrossCutting.Settings.Paths;
+using AudioToSearch.Infra.Data.UnitOfWorks;
 using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -12,18 +15,40 @@ namespace AudioToSearch.Aplication.Catalogar.Audio.CommandHandlers;
 public class CatalogarAudioCommandHandler(
     IOptions<PathSettings> pathSettings,
     ISpeechToTextService speechToTextService,
-    ILogger<CatalogarAudioCommandHandler> logger
+    ILogger<CatalogarAudioCommandHandler> logger,
+    ICatalogarAudioRepository catalogarAudioRepository,
+    IUnitOfWork unitOfWork
     ) : IRequestHandler<CatalogarAudioCommand>
 {
     private const int SampleRate = 16000;
 
     public async Task Handle(CatalogarAudioCommand request, CancellationToken cancellationToken)
     {
-        if(!ObterCaminhoAudioTratado(request, out var caminhoNovo)) return;
+        try
+        {
+            if (!ObterCaminhoAudioTratado(request, out var caminhoNovo)) return;
+            var audioEntity = await CriarCatalocarAudio(request);
+            await TranscreverAudio(caminhoNovo, audioEntity);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "erro");
+            throw;
+        }
+    }
 
-        await TranscreverAudio(caminhoNovo);
-
-        return;
+    private async Task<CatalogarAudioEntity> CriarCatalocarAudio(CatalogarAudioCommand request)
+    {
+        var audioEntity = new CatalogarAudioEntity
+        {
+            Descricao = request.Descricao,
+            Titulo = request.Titulo,
+            UId = new Guid(),
+            Transcricaoes = new List<CatalogarAudioTranscricaoEntity>()
+        };
+        await catalogarAudioRepository.AddAsync(audioEntity);
+        await unitOfWork.Commit();
+        return audioEntity;
     }
 
     private bool ObterCaminhoAudioTratado(CatalogarAudioCommand request, out string caminhoNovo)
@@ -57,18 +82,28 @@ public class CatalogarAudioCommandHandler(
         return true;
     }
 
-    private async Task TranscreverAudio(string caminhoNovo)
+    private async Task TranscreverAudio(string caminhoNovo, CatalogarAudioEntity audioEntity)
     {
         try
         {
             var result = await speechToTextService.Send(caminhoNovo);
             await foreach (var item in result.Itens)
             {
-                logger.LogInformation(item.Text);
+                audioEntity.Transcricaoes.Add(new()
+                {
+                    CatalogarAudio = audioEntity,
+                    Final = item.End,
+                    Inicio = item.Start,
+                    Texto = item.Text,
+                    UId = new Guid(),
+                    UIdCatalogarAudio = audioEntity.UId,
+                });
             }
+            await unitOfWork.Commit();
         }
         catch (Exception e)
         {
+            logger.LogError(message: "erro ao TranscreverAudio", exception: e);
             throw;
         }
     }

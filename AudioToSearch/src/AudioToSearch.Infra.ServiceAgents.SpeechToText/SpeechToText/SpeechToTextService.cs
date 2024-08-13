@@ -33,7 +33,11 @@ public class SpeechToTextService : ISpeechToTextService
         {
             await foreach (var item in builder.ProcessAsync(fileStream))
             {
-                yield return new() { Text = item.Text };
+                yield return new() { 
+                    Text = item.Text,
+                    End = item.End,
+                    Start = item.Start,
+                };
             }
         }
     }

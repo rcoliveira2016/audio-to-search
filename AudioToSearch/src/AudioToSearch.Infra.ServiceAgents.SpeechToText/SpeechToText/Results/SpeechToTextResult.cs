@@ -8,4 +8,6 @@ public class SpeechToTextResult
 public class SpeechToTextItemResult
 {
     public required string Text { get; init; }
+    public required TimeSpan Start { get; init; }
+    public required TimeSpan End { get; init; }
 }

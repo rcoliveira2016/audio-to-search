@@ -8,5 +8,9 @@ public class CatalogarAudioEntityTypeConfiguration : IEntityTypeConfiguration<Ca
     public void Configure(EntityTypeBuilder<CatalogarAudioEntity> builder)
     {
         builder.HasKey(b => b.UId);
+        builder.HasMany(e => e.Transcricaoes)
+            .WithOne(e => e.CatalogarAudio)
+            .HasForeignKey(e => e.UIdCatalogarAudio)
+            .IsRequired();
     }
 }

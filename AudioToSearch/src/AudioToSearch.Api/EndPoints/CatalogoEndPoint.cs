@@ -1,9 +1,5 @@
 ﻿using AudioToSearch.Aplication.Catalogar.Audio.Commands;
-using AudioToSearch.Domain.CatalogarModels.AudioModels.Entitis;
-using AudioToSearch.Domain.CatalogarModels.AudioModels.Repositories;
 using AudioToSearch.Infra.CrossCutting.Settings.Paths;
-using AudioToSearch.Infra.Data;
-using AudioToSearch.Infra.Data.UnitOfWorks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,39 +13,23 @@ public static class CatalogoEndPoint
         var group = app
             .MapGroup("/catalogar");
 
-        group.MapPost("enviar-audio", [DisableRequestSizeLimit] (
+        group.MapPost("enviar-audio", [DisableRequestSizeLimit] async (
             [FromForm] string descricao,
+            [FromForm] string titulo,
             IFormFile fileAudio,
-            [FromServices]IMediator bus,
-            [FromServices]IOptions<PathSettings> pathSettings) =>
+            [FromServices] IMediator bus,
+            [FromServices] IOptions<PathSettings> pathSettings) =>
         {
-            ExecutarEnvioArquivo(descricao, fileAudio, bus, pathSettings);
+            await ExecutarEnvioArquivo(descricao, titulo, fileAudio, bus, pathSettings);
             return Results.Ok();
         })
-            .DisableAntiforgery();
-
-        group.MapPost("adicionar", async (
-            [FromServices] ICatalogarAudioRepository catalogarAudioRepository,
-            [FromServices] IUnitOfWork unitOfWork) =>
-        {
-            var result = new CatalogarAudioEntity { Descricao = "Test1", Titulo = "teste1", UId = new Guid() };
-            await catalogarAudioRepository.AddAsync(result);
-            await unitOfWork.Commit();
-            return Results.Ok(result);
-        });
-
-        group.MapPost("consultar", (
-            [FromServices] ICatalogarAudioRepository catalogarAudioRepository) =>
-        {
-            var dataSet = catalogarAudioRepository.GetAllAsync();
-            return Results.Ok(dataSet);
-        });
+        .DisableAntiforgery();
 
 
         return app;
     }
 
-    private static void ExecutarEnvioArquivo(string descricao, IFormFile fileAudio, IMediator bus, IOptions<PathSettings> pathSettings)
+    private static async Task ExecutarEnvioArquivo(string descricao, string titulo, IFormFile fileAudio, IMediator bus, IOptions<PathSettings> pathSettings)
     {
 
         var caminho = Path.Combine(
@@ -62,14 +42,12 @@ public static class CatalogoEndPoint
             fileAudio.CopyTo(stream);
         }
 
-        Task.Run(async () =>
+        await bus.Send(new CatalogarAudioCommand()
         {
-            await bus.Send(new CatalogarAudioCommand()
-            {
-                CaminhoArquivo = caminho,
-                Descricao = descricao,
-                Nome = fileAudio.FileName
-            });
+            CaminhoArquivo = caminho,
+            Descricao = descricao,
+            Nome = fileAudio.FileName,
+            Titulo = titulo,
         });
     }
 }

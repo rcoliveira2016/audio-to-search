@@ -3,6 +3,7 @@ using System;
 using AudioToSearch.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AudioToSearch.Infra.Data.Migrations
 {
     [DbContext(typeof(AudioToSearchContext))]
-    partial class AudioToSearchContextModelSnapshot : ModelSnapshot
+    [Migration("20240810005030_AddTranscricaoes")]
+    partial class AddTranscricaoes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.7");
