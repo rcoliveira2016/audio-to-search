@@ -82,10 +82,10 @@ public class CatalogarAudioCommandHandler(
         return true;
     }
 
-    private void TranscreverAudio(string caminhoNovo, CatalogarAudioEntity audioEntity)
+    private static void TranscreverAudio(string caminhoNovo, CatalogarAudioEntity audioEntity)
     {
         BackgroundJob.Schedule<TranscreverAudioJob>(
-            x => x.Executar(caminhoNovo, audioEntity.UId), 
+            x => x.Executar(caminhoNovo, audioEntity.UId),
             TimeSpan.FromSeconds(1));
     }
 
@@ -161,7 +161,8 @@ public class CatalogarAudioCommandHandler(
     }
 }
 
-enum eFormatoArquivo { 
+enum eFormatoArquivo
+{
     None,
     Mp3,
     Wav

@@ -19,7 +19,7 @@ public class SpeechToTextService : ISpeechToTextService
         };
     }
 
-    private async IAsyncEnumerable<SpeechToTextItemResult> GetItens(string file)
+    private static async IAsyncEnumerable<SpeechToTextItemResult> GetItens(string file)
     {
         using var whisperFactory = WhisperFactory.FromPath(modelFileName);
 
