@@ -7,6 +7,10 @@ using AudioToSearch.Infra.Data.UnitOfWorks;
 using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
 using Hangfire;
 using Hangfire.Storage.SQLite;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace AudioToSearch.Api.Configurations;
 
@@ -21,6 +25,19 @@ public static class MapIocService
         services.AddScoped<ISpeechToTextService, SpeechToTextService>();
         services.AddData();
         services.AddHangfire(configuration);
+        services.ConfigureHealthChecks(configuration);
+    }
+
+    public static void ConfigureHealthChecks(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHealthChecks()
+            .AddNpgSql(configuration.GetConnectionString("AudioToSearchDatabase")!, 
+                name: "PostgreSql", 
+                tags: ["Database", "Essencial"])
+            .AddSqlite(configuration.GetConnectionString("AudioToSearchDatabase")!,
+                name: "Sqlite",
+                tags: ["Database", "Essencial"])
+            .AddHangfire(null, name: "Hangfire", tags: ["Database", "Essencial", "Processos"]);
     }
 
     private static void AddData(this IServiceCollection services)

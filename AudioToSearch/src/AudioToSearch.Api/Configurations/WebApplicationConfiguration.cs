@@ -27,7 +27,9 @@ public static class WebApplicationConfiguration
 
         app.UseHttpsRedirection();
 
-        app.AddCatalogarEndPoint();
+        app
+            .AddCatalogarEndPoint()
+            .AddHealthCheck();
 
         app.Run();
     }
