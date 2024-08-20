@@ -34,7 +34,7 @@ public static class MapIocService
             .AddNpgSql(configuration.GetConnectionString("AudioToSearchDatabase")!, 
                 name: "PostgreSql", 
                 tags: ["Database", "Essencial"])
-            .AddSqlite(configuration.GetConnectionString("AudioToSearchDatabase")!,
+            .AddSqlite(configuration.GetConnectionString("HangfireConnection")!,
                 name: "Sqlite",
                 tags: ["Database", "Essencial"])
             .AddHangfire(null, name: "Hangfire", tags: ["Database", "Essencial", "Processos"]);

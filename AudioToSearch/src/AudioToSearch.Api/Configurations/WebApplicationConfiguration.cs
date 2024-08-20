@@ -7,6 +7,9 @@ public static class WebApplicationConfiguration
 {
     public static WebApplication BuildApp(this WebApplicationBuilder builder)
     {
+
+        builder.Configuration.AddJsonFile("appsettings.Local.json");
+
         builder.Services
             .AddEndpointsApiExplorer()
             .AddSwaggerGen()
