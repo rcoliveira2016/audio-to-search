@@ -20,6 +20,6 @@ public class AudioToSearchContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder
-            .UseSqlite(_configuration.GetConnectionString("AudioToSearchDatabase"));
+            .UseNpgsql(_configuration.GetConnectionString("AudioToSearchDatabase"));
     }
 }

@@ -1,4 +1,5 @@
-﻿using AudioToSearch.Infra.CrossCutting.Settings.Paths;
+﻿using AudioToSearch.Api.Configurations.HealthCheck;
+using AudioToSearch.Infra.CrossCutting.Settings.Paths;
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;

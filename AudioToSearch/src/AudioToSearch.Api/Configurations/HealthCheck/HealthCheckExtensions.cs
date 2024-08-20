@@ -2,7 +2,7 @@
 using System.Net.Mime;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
+namespace AudioToSearch.Api.Configurations.HealthCheck;
 public static class HealthCheckExtensions
 {
     private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
