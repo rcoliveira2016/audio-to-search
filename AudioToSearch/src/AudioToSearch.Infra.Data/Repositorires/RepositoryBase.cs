@@ -8,20 +8,20 @@ public abstract class RepositoryBase<T>(
     ) : IRepositoryBase<T> where T : class
 {
     AudioToSearchContext _context = dbContext;
-
+    protected DbSet<T> dbSet => _context.Set<T>();
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await _context.Set<T>().ToListAsync();
+        return await dbSet.ToListAsync();
     }
 
     public virtual async Task<T?> GetByIdAsync<TId>(TId id)
     {
-        return await _context.Set<T>().FindAsync(id);
+        return await dbSet.FindAsync(id);
     }
 
     public virtual async Task AddAsync(T entity)
     {
-        await _context.Set<T>().AddAsync(entity);
+        await dbSet.AddAsync(entity);
     }
 
     public virtual void Update(T entity)

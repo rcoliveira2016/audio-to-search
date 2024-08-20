@@ -6,13 +6,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Pgvector;
 
 #nullable disable
 
 namespace AudioToSearch.Infra.Data.Migrations
 {
     [DbContext(typeof(AudioToSearchContext))]
-    [Migration("20240820002446_Inicial")]
+    [Migration("20240820212012_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -23,6 +24,7 @@ namespace AudioToSearch.Infra.Data.Migrations
                 .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("AudioToSearch.Domain.CatalogarModels.AudioModels.Entitis.CatalogarAudioEntity", b =>
@@ -49,6 +51,9 @@ namespace AudioToSearch.Infra.Data.Migrations
                     b.Property<Guid>("UId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<Vector>("Embedding")
+                        .HasColumnType("vector(3)");
 
                     b.Property<TimeSpan>("Final")
                         .HasColumnType("interval");

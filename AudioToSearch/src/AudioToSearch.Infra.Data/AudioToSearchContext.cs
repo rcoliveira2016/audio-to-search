@@ -14,12 +14,12 @@ public class AudioToSearchContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogarAudioEntityTypeConfiguration).Assembly);
-
+        modelBuilder.HasPostgresExtension("vector");
         base.OnModelCreating(modelBuilder);
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder
-            .UseNpgsql(_configuration.GetConnectionString("AudioToSearchDatabase"));
+            .UseNpgsql(_configuration.GetConnectionString("AudioToSearchDatabase"), o => o.UseVector());
     }
 }

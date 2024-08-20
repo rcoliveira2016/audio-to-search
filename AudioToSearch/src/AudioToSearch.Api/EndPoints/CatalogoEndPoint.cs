@@ -1,4 +1,5 @@
 ﻿using AudioToSearch.Aplication.Catalogar.Audio.Commands;
+using AudioToSearch.Domain.CatalogarModels.AudioModels.Repositories;
 using AudioToSearch.Infra.CrossCutting.Settings.Paths;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,21 @@ public static class CatalogoEndPoint
         })
         .DisableAntiforgery();
 
+
+        group.MapGet("transcricoes", [DisableRequestSizeLimit] async (
+            [FromServices] ICatalogarAudioRepository catalogarAudioRepository
+            ) =>
+        {
+            var all = await catalogarAudioRepository.GetAllAsync();
+
+            return Results.Ok(all.Select(x => new
+            {
+                x.UId,
+                x.Descricao,
+                x.Titulo,
+                Transcricaoes = x.Transcricaoes.Select(x => new { x.Final, x.Inicio, x.Texto, x.Embedding })
+            }));
+        });
 
         return app;
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Pgvector;
 
 #nullable disable
 
@@ -11,6 +12,9 @@ namespace AudioToSearch.Infra.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:PostgresExtension:vector", ",,");
+
             migrationBuilder.CreateTable(
                 name: "CatalogarAudioEntity",
                 columns: table => new
@@ -32,7 +36,8 @@ namespace AudioToSearch.Infra.Data.Migrations
                     Texto = table.Column<string>(type: "text", nullable: false),
                     Inicio = table.Column<TimeSpan>(type: "interval", nullable: false),
                     Final = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    UIdCatalogarAudio = table.Column<Guid>(type: "uuid", nullable: false)
+                    UIdCatalogarAudio = table.Column<Guid>(type: "uuid", nullable: false),
+                    Embedding = table.Column<Vector>(type: "vector(3)", nullable: true)
                 },
                 constraints: table =>
                 {
