@@ -50,6 +50,7 @@ public static class MapIocService
     private static void AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<ICatalogarAudioRepository, CatalogarAudioRepository>();
+        services.AddScoped<ICatalogarAudioTranscricaoRepository, CatalogarAudioTranscricaoRepository>();
     }
 
     private static void AddHangfire(this IServiceCollection services, IConfiguration configuration)

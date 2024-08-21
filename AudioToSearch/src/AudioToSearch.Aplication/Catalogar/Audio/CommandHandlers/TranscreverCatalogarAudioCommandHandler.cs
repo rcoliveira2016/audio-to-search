@@ -1,6 +1,8 @@
 ﻿using AudioToSearch.Aplication.Catalogar.Audio.Commands;
 using AudioToSearch.Aplication.Catalogar.Audio.Jobs;
+using AudioToSearch.Domain.CatalogarModels.AudioModels.Entitis;
 using AudioToSearch.Domain.CatalogarModels.AudioModels.Repositories;
+using AudioToSearch.Infra.Data.Repositorires;
 using AudioToSearch.Infra.Data.UnitOfWorks;
 using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
 using Hangfire;
@@ -13,6 +15,7 @@ public class TranscreverCatalogarAudioCommandHandler(
     ISpeechToTextService speechToTextService,
     ILogger<CatalogarAudioCommandHandler> logger,
     ICatalogarAudioRepository catalogarAudioRepository,
+    ICatalogarAudioTranscricaoRepository catalogarAudioTranscricaoRepository,
     IUnitOfWork unitOfWork
     ) : IRequestHandler<TranscreverCatalogarAudioCommand>
 {
@@ -26,10 +29,12 @@ public class TranscreverCatalogarAudioCommandHandler(
                 logger.LogError("não foi encontrado o catalogo {@uidCatalogarAudio}", request.UIdCatalogarAudio);
                 return;
             }
+
+            var transcricoes = new List<CatalogarAudioTranscricaoEntity>();
             var result = await speechToTextService.Send(request.CaminhoAudio);
             await foreach (var item in result.Itens)
             {
-                catalogarAudio.Transcricaoes.Add(new()
+                transcricoes.Add(new()
                 {
                     CatalogarAudio = catalogarAudio,
                     Final = item.End,
@@ -39,7 +44,12 @@ public class TranscreverCatalogarAudioCommandHandler(
                     UIdCatalogarAudio = catalogarAudio.UId,
                 });
             }
+
+            await catalogarAudioTranscricaoRepository.Insert(transcricoes);
+
             await unitOfWork.Commit();
+
+            File.Delete(request.CaminhoAudio);
 
             BackgroundJob.Schedule<EmbeddingsAudioJob>(
                 x => x.Executar(request.UIdCatalogarAudio),
