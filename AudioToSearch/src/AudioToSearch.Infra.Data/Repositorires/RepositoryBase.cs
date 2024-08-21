@@ -8,7 +8,9 @@ public abstract class RepositoryBase<T>(
     ) : IRepositoryBase<T> where T : class
 {
     AudioToSearchContext _context = dbContext;
-    protected DbSet<T> dbSet => _context.Set<T>();
+    protected DbSet<TType> GetDbSet<TType>() where TType : class
+        => _context.Set<TType>();
+    protected DbSet<T> dbSet => GetDbSet<T>();
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
         return await dbSet.ToListAsync();

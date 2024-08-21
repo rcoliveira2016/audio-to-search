@@ -37,7 +37,7 @@ public static class MapIocService
             .AddSqlite(configuration.GetConnectionString("HangfireConnection")!,
                 name: "Sqlite",
                 tags: ["Database", "Essencial"])
-            .AddHangfire(null, name: "Hangfire", tags: ["Database", "Essencial", "Processos"]);
+            .AddHangfire(conf => conf.MinimumAvailableServers = 0, name: "Hangfire", tags: ["Database", "Essencial", "Processos"]);
     }
 
     private static void AddData(this IServiceCollection services)
