@@ -58,7 +58,6 @@ public class TranscreverCatalogarAudioCommandHandler(
         catch (Exception e)
         {
             logger.LogError(message: "erro ao TranscreverAudio", exception: e);
-            throw;
         }
     }
 }

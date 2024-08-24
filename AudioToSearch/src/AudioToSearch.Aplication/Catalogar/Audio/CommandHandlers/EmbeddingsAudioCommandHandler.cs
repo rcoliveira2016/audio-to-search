@@ -4,6 +4,7 @@ using AudioToSearch.Domain.CatalogarModels.AudioModels.Repositories;
 using AudioToSearch.Infra.CrossCutting.Settings.ApiKeys;
 using AudioToSearch.Infra.Data.Repositorires;
 using AudioToSearch.Infra.Data.UnitOfWorks;
+using AudioToSearch.Infra.ServiceAgents.ProvaderAI.Services;
 using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
 using Hangfire;
 using MediatR;
@@ -16,7 +17,8 @@ namespace AudioToSearch.Aplication.Catalogar.Audio.CommandHandlers;
 public class EmbeddingsAudioCommandHandler(
     ILogger<EmbeddingsAudioCommandHandler> logger,
     IUnitOfWork unitOfWork,
-    ICatalogarAudioTranscricaoRepository catalogarAudioTranscricaoRepository
+    ICatalogarAudioTranscricaoRepository catalogarAudioTranscricaoRepository,
+    ITextEmbeddingService textEmbeddingService
     ) : IRequestHandler<EmbeddingsAudioCommand>
 {
     public async Task Handle(EmbeddingsAudioCommand request, CancellationToken cancellationToken)
@@ -26,7 +28,8 @@ public class EmbeddingsAudioCommandHandler(
             var transcricoes = catalogarAudioTranscricaoRepository.GetByUIdCatalogarAudio(request.UIdCatalogarAudio).ToList();
             foreach (var item in transcricoes)
             {
-                item.Embedding = new Vector(new float[] { 1, 2, 1 });
+                var vactor = await textEmbeddingService.GenerateEmbedding(item.Texto);
+                item.Embedding = new Vector(vactor);
             }
             await catalogarAudioTranscricaoRepository.Update(transcricoes);
             await unitOfWork.Commit();
@@ -34,8 +37,6 @@ public class EmbeddingsAudioCommandHandler(
         catch (Exception e)
         {
             logger.LogError(message: "erro ao TranscreverAudio", exception: e);
-            throw;
         }
-  
     }
 }

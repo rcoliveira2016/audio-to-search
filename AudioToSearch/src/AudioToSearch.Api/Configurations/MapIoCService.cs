@@ -5,6 +5,7 @@ using AudioToSearch.Infra.Data;
 using AudioToSearch.Infra.Data.Repositorires;
 using AudioToSearch.Infra.Data.UnitOfWorks;
 using AudioToSearch.Infra.ServiceAgents.SpeechToText.SpeechToText;
+using AudioToSearch.Infra.ServiceAgents.ProvaderAI;
 using Hangfire;
 using Hangfire.Storage.SQLite;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,7 @@ public static class MapIocService
         services.AddData();
         services.AddHangfire(configuration);
         services.ConfigureHealthChecks(configuration);
+        services.RegisterProvaderAIBootstrapper();
     }
 
     public static void ConfigureHealthChecks(this IServiceCollection services, IConfiguration configuration)

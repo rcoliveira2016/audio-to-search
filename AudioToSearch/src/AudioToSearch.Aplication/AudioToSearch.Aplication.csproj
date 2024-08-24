@@ -19,6 +19,7 @@
     <ProjectReference Include="..\AudioToSearch.Domain\AudioToSearch.Domain.csproj" />
     <ProjectReference Include="..\AudioToSearch.Infra.CrossCutting.Settings\AudioToSearch.Infra.CrossCutting.Settings.csproj" />
     <ProjectReference Include="..\AudioToSearch.Infra.Data\AudioToSearch.Infra.Data.csproj" />
+    <ProjectReference Include="..\AudioToSearch.Infra.ServiceAgents.ProvaderAI\AudioToSearch.Infra.ServiceAgents.ProvaderAI.csproj" />
     <ProjectReference Include="..\AudioToSearch.Infra.ServiceAgents.SpeechToText\AudioToSearch.Infra.ServiceAgents.SpeechToText.csproj" />
   </ItemGroup>
 
