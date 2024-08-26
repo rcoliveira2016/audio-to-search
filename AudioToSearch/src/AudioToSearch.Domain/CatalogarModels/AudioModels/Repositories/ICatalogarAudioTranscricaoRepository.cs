@@ -9,4 +9,5 @@ public interface ICatalogarAudioTranscricaoRepository : IRepositoryBase<Cataloga
     IEnumerable<CatalogarAudioTranscricaoEntity> GetByUIdCatalogarAudio(Guid uidCatalogarAudio);
     Task Insert(ICollection<CatalogarAudioTranscricaoEntity> catalogarAudioTranscricaoEntities);
     Task Update(ICollection<CatalogarAudioTranscricaoEntity> catalogarAudioTranscricaoEntities);
+    IEnumerable<CatalogarAudioTranscricaoEntity> GetByEmbedding(float[] embedding);
 }

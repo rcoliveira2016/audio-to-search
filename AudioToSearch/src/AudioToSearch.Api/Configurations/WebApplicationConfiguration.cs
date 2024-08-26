@@ -32,7 +32,8 @@ public static class WebApplicationConfiguration
 
         app
             .AddCatalogarEndPoint()
-            .AddHealthCheck();
+            .AddHealthCheck()
+            .AddConsultaEndpoint();
 
         app.Run();
     }
